@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Para Você</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Poppins:wght@200;300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #0b0b1e;
+      --bg-mid: #1b1440;
+      --gold: #e8b44c;
+      --rose: #d88c9a;
+      --text-light: #f5f0e8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(ellipse at 50% 20%, var(--bg-mid), var(--bg-deep) 70%);
+      color: var(--text-light);
+      overflow: hidden;
+      position: relative;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- stars & floating particles ---------- */
+    #stars {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+
+      0%,
+      100% {
+        opacity: .15;
+      }
+
+      50% {
+        opacity: .9;
+      }
+    }
+
+    .mote {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: .5;
+      filter: blur(.5px);
+      animation: drift linear infinite;
+    }
+
+    @keyframes drift {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: .6;
+      }
+
+      90% {
+        opacity: .6;
+      }
+
+      100% {
+        transform: translateY(-110vh) translateX(20px);
+        opacity: 0;
+      }
+    }
+
+    .screen {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 32px 24px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ---------- intro ---------- */
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 18px;
+      opacity: .85;
+    }
+
+    h1.title {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(32px, 7vw, 58px);
+      line-height: 1.15;
+      max-width: 680px;
+      margin-bottom: 20px;
+    }
+
+    h1.title .accent {
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    p.subtitle {
+      font-weight: 300;
+      font-size: clamp(14px, 2.2vw, 17px);
+      color: #cfc9e8;
+      max-width: 460px;
+      line-height: 1.7;
+      margin-bottom: 44px;
+    }
+
+    .btn {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: transparent;
+      border: 1px solid var(--gold);
+      padding: 15px 38px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all .35s ease;
+    }
+
+    .btn:hover {
+      background: var(--gold);
+      color: var(--bg-deep);
+      box-shadow: 0 0 30px rgba(232, 180, 76, .35);
+    }
+
+    .btn.ghost {
+      color: var(--rose);
+      border-color: var(--rose);
+    }
+
+    .btn.ghost:hover {
+      background: var(--rose);
+      color: var(--bg-deep);
+      box-shadow: 0 0 30px rgba(216, 140, 154, .35);
+    }
+
+    input[type=file] {
+      display: none;
+    }
+
+    .file-count {
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--gold);
+      opacity: .9;
+      min-height: 18px;
+    }
+
+    /* ---------- carousel ---------- */
+    #carousel-screen {
+      padding: 24px;
+    }
+
+    .frame-wrap {
+      position: relative;
+      width: min(88vw, 480px);
+      height: min(60vh, 560px);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(232, 180, 76, .35), 0 30px 80px rgba(0, 0, 0, .55);
+      background: #000;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: scale(1.06);
+      transition: opacity 1.1s ease, transform 6s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: scale(1);
+      z-index: 1;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .slide::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, .75) 100%);
+    }
+
+    .caption {
+      position: relative;
+      z-index: 3;
+      margin-top: 24px;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(15px, 2.6vw, 19px);
+      color: var(--text-light);
+      max-width: 480px;
+      min-height: 30px;
+    }
+
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 4;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid rgba(245, 240, 232, .3);
+      background: rgba(11, 11, 30, .35);
+      color: var(--text-light);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: .25s ease;
+    }
+
+    .nav-arrow:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .nav-prev {
+      left: -6px;
+    }
+
+    .nav-next {
+      right: -6px;
+    }
+
+    @media(min-width:560px) {
+      .nav-prev {
+        left: -56px;
+      }
+
+      .nav-next {
+        right: -56px;
+      }
+    }
+
+    .dots {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      gap: 8px;
+      margin-top: 22px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(245, 240, 232, .3);
+      cursor: pointer;
+      transition: .3s ease;
+    }
+
+    .dot.active {
+      background: var(--gold);
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    /* ---------- final ---------- */
+    #final-screen h1.title {
+      margin-bottom: 14px;
+    }
+
+    .hearts {
+      font-size: 28px;
+      margin-bottom: 18px;
+      color: var(--rose);
+    }
+
+    footer.hint {
+      position: fixed;
+      bottom: 14px;
+      left: 0;
+      right: 0;
+      z-index: 3;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: rgba(245, 240, 232, .35);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="stars"></div>
+
+  <!-- ===================== INTRO ===================== -->
+  <section class="screen" id="intro-screen">
+    <p class="eyebrow">Umas lembrancinhas nossas</p>
+    <h1 class="title">Tudo que fizemos até hoje, e todas as vezes que estivemos juntos</h1>
+    <div style="margin-top:10px;">
+      <button class="btn" id="start-btn">Começar</button>
+    </div>
+  </section>
+
+  <!-- ===================== CAROUSEL ===================== -->
+  <section class="screen hidden" id="carousel-screen">
+    <div class="frame-wrap" id="frame-wrap">
+      <button class="nav-arrow nav-prev" id="prev-btn">&#8249;</button>
+      <button class="nav-arrow nav-next" id="next-btn">&#8250;</button>
+    </div>
+    <p class="caption" id="caption"></p>
+    <div class="dots" id="dots"></div>
+  </section>
+
+  <section class="screen hidden" id="final-screen">
+    <div class="hearts">&#10084;</div>
+    <button class="btn" id="replay-btn">Ver de novo</button>
+  </section>
+
+  <footer class="hint">para alguém mais do que especial (não autista)</footer>
+
+  <script>
+    const CONFIG = {
+      photos: [
+        "fotos/1.jpg",
+        "fotos/2.jpg",
+        "fotos/3.jpg",
+        "fotos/4.jpg",
+        "fotos/5.jpg",
+        "fotos/7.jpg",
+        "fotos/8.jpg",
+        "fotos/9.jpg",
+        "fotos/10.jpg",
+        "fotos/11.jpg",
+        "fotos/12.jpg",
+        "fotos/13.jpg",
+        "fotos/14.jpg",
+        "fotos/15.jpg",
+        "fotos/18.jpg",
+        "fotos/19.jpg",
+        "fotos/20.jpg",
+        "fotos/21.jpg",
+        "fotos/22.jpg",
+        "fotos/23.jpg",
+        "fotos/24.jpg",
+        "fotos/25.jpg",
+        "fotos/26.jpg",
+        "fotos/27.jpg",
+        "fotos/28.jpg",
+        "fotos/29.jpg",
+        "fotos/30.jpg",
+        "fotos/31.jpg",
+        "fotos/32.jpg",
+        "fotos/33.jpg",
+        "fotos/34.jpg",
+        "fotos/35.jpg",
+        "fotos/36.jpg",
+        "fotos/37.jpg",
+        "fotos/38.jpg",
+        "fotos/39.jpg",
+        "fotos/40.jpg",
+        "fotos/41.jpg"
+
+      ],
+      autoplayMs: 4200
+    };
+
+    (function bg() {
+      const starsEl = document.getElementById('stars');
+      for (let i = 0; i < 70; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = Math.random() * 2 + 1;
+        s.style.width = s.style.height = size + 'px';
+        s.style.top = Math.random() * 100 + '%';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.animationDelay = (Math.random() * 3) + 's';
+        starsEl.appendChild(s);
+      }
+      for (let i = 0; i < 18; i++) {
+        const m = document.createElement('div');
+        m.className = 'mote';
+        m.style.left = Math.random() * 100 + '%';
+        m.style.bottom = '-10px';
+        m.style.animationDuration = (9 + Math.random() * 8) + 's';
+        m.style.animationDelay = (Math.random() * 10) + 's';
+        starsEl.appendChild(m);
+      }
+    })();
+
+    /* ---------- início ---------- */
+    const startBtn = document.getElementById('start-btn');
+
+    startBtn.addEventListener('click', () => {
+      if (!CONFIG.photos.length) return;
+      buildCarousel(CONFIG.photos);
+      document.getElementById('intro-screen').classList.add('hidden');
+      document.getElementById('carousel-screen').classList.remove('hidden');
+      startAutoplay();
+    });
+
+    /* ---------- carrossel ---------- */
+    const frameWrap = document.getElementById('frame-wrap');
+    const dotsEl = document.getElementById('dots');
+    const captionEl = document.getElementById('caption');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    let slides = [];
+    let current = 0;
+    let timer = null;
+
+    function buildCarousel(urls) {
+      frameWrap.querySelectorAll('.slide').forEach(s => s.remove());
+      dotsEl.innerHTML = '';
+      slides = [];
+
+      urls.forEach((url, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'slide' + (i === 0 ? ' active' : '');
+        const img = document.createElement('img');
+        img.src = url;
+        img.onerror = () => { img.alt = 'foto não encontrada: ' + url; };
+        slide.appendChild(img);
+        frameWrap.insertBefore(slide, prevBtn);
+        slides.push(slide);
+
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => goTo(i));
+        dotsEl.appendChild(dot);
+      });
+
+      current = 0;
+    }
+
+    function updateCaption() {
+      captionEl.textContent = CONFIG.captions[current] || '';
+    }
+
+    function goTo(i) {
+      slides[current].classList.remove('active');
+      dotsEl.children[current].classList.remove('active');
+      current = (i + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      dotsEl.children[current].classList.add('active');
+      updateCaption();
+      resetAutoplay();
+
+      if (current === slides.length - 1) {
+        setTimeout(() => {
+          if (current === slides.length - 1) showFinal();
+        }, CONFIG.autoplayMs);
+      }
+    }
+
+    function next() {
+      if (current === slides.length - 1) { showFinal(); return; }
+      goTo(current + 1);
+    }
+    function prev() { goTo(current - 1); }
+
+    prevBtn.addEventListener('click', prev);
+    nextBtn.addEventListener('click', next);
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('carousel-screen').classList.contains('hidden')) return;
+      if (e.key === 'ArrowRight') next();
+      if (e.key === 'ArrowLeft') prev();
+    });
+
+    /* swipe touch */
+    let touchX = null;
+    frameWrap.addEventListener('touchstart', e => touchX = e.touches[0].clientX);
+    frameWrap.addEventListener('touchend', e => {
+      if (touchX === null) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (dx > 40) prev();
+      if (dx < -40) next();
+      touchX = null;
+    });
+
+    function startAutoplay() {
+      timer = setInterval(() => {
+        if (current === slides.length - 1) { showFinal(); return; }
+        goTo(current + 1);
+      }, CONFIG.autoplayMs);
+    }
+    function resetAutoplay() {
+      clearInterval(timer);
+      startAutoplay();
+    }
+
+    /* ---------- final ---------- */
+    function showFinal() {
+      clearInterval(timer);
+      document.getElementById('carousel-screen').classList.add('hidden');
+      document.getElementById('final-screen').classList.remove('hidden');
+    }
+    document.getElementById('replay-btn').addEventListener('click', () => {
+      document.getElementById('final-screen').classList.add('hidden');
+      document.getElementById('carousel-screen').classList.remove('hidden');
+      goTo(0);
+      startAutoplay();
+    });
+  </script>
+</body>
+
+</html>
